@@ -57,11 +57,87 @@ function createDivsForColors(colorArray) {
   }
 }
 
-// TODO: Implement this function!
+let card1 = null;
+let card2 = null;
+let noclicking = false;
+let finished = false;
+let score = 0;
+let flipped = 0;
 function handleCardClick(event) {
-  // you can use event.target to see which element was clicked
-  console.log("you just clicked", event.target);
+  const card = event.target;
+
+  if(noclicking) return;
+  // if card is flipped, do nothing
+  if(card.classList.contains("flipped")) return;
+
+  score++;
+  document.querySelector("#score").innerHTML = `Score: ${score}`;
+
+  card.style.backgroundColor = card.classList[0];
+
+  // !false || !false
+  // if less than two cards are flipped
+  if(!card1 || !card2) {
+    card.classList.add("flipped");
+    // set one card to selection
+    card1 = card1 || card;
+    // if same card is selected, set other card to nothing
+    // if different card is selected, set other card to selection
+    card2 = (card === card1) ? null : card;
+  }
+
+  // if two cards are flipped
+  if(card1 && card2) {
+    noclicking = true;
+
+    if(card1.className == card2.className) {
+      card1.removeEventListener("click", handleCardClick);
+      card2.removeEventListener("click", handleCardClick);
+      card1 = null;
+      card2 = null;
+
+      flipped += 2;
+
+      noclicking = false;
+    } else {
+      setTimeout(function() {
+        card1.style.backgroundColor = "";
+        card2.style.backgroundColor = "";
+        card1.classList.remove("flipped");
+        card2.classList.remove("flipped");
+        card1 = null;
+        card2 = null;
+
+        noclicking = false;
+      }, 1000);
+    }
+  }
+
+  if(flipped === COLORS.length) {
+    let bestScore = localStorage.getItem("bestScore");
+    if(bestScore === null) {
+      bestScore = score;
+    } else {
+      bestScore = Math.min(parseInt(bestScore), score);
+    }
+
+    localStorage.setItem("bestScore", bestScore);
+
+    alert(`WINNER! Score: ${score}. Best Score: ${bestScore}`);
+
+    const div = document.querySelector("#button");
+    const restart = document.createElement("button");
+    restart.innerHTML = "Restart";
+    restart.addEventListener("click", function() {
+      location.reload();
+    });
+
+    div.appendChild(restart);
+  }
 }
 
-// when the DOM loads
-createDivsForColors(shuffledColors);
+const button = document.querySelector("#start");
+button.addEventListener("click", function() {
+  createDivsForColors(shuffledColors);
+  button.remove();
+});
