@@ -1,21 +1,43 @@
+const button = document.querySelector("#start");
 const gameContainer = document.getElementById("game");
 
-const COLORS = [
-  "red",
-  "blue",
-  "green",
-  "orange",
-  "purple",
-  "red",
-  "blue",
-  "green",
-  "orange",
-  "purple"
-];
+let matches = 0;
 
-// here is a helper function to shuffle an array
-// it returns the same array with values shuffled
-// it is based on an algorithm called Fisher Yates if you want ot research more
+let deck = [];
+let card1 = null;
+let card2 = null;
+let noclicking = false;
+let finished = false;
+let score = 0;
+let flipped = 0;
+
+button.addEventListener("click", function(event) {
+  event.preventDefault();
+
+  matches = parseInt(document.querySelector("#difficulty").value);
+
+  if(matches < 1) {
+    alert("Please enter a number greater than 0");
+  }
+
+  deck = [];
+
+  for(let i = 0; i < matches; i++) {
+    const randomColor = Math.floor(Math.random()*16777215).toString(16);
+    deck.push(randomColor);
+    deck.push(randomColor);
+  }
+
+  deck = shuffle(deck);
+
+  noclicking = false;
+  finished = false;
+  score = 0;
+  flipped = 0;
+
+  createDivsForColors(deck);
+});
+
 function shuffle(array) {
   let counter = array.length;
 
@@ -36,12 +58,9 @@ function shuffle(array) {
   return array;
 }
 
-let shuffledColors = shuffle(COLORS);
-
-// this function loops over the array of colors
-// it creates a new div and gives it a class with the value of the color
-// it also adds an event listener for a click for each card
 function createDivsForColors(colorArray) {
+gameContainer.innerHTML = "";
+
   for (let color of colorArray) {
     // create a new div
     const newDiv = document.createElement("div");
@@ -57,12 +76,7 @@ function createDivsForColors(colorArray) {
   }
 }
 
-let card1 = null;
-let card2 = null;
-let noclicking = false;
-let finished = false;
-let score = 0;
-let flipped = 0;
+
 function handleCardClick(event) {
   const card = event.target;
 
@@ -73,7 +87,8 @@ function handleCardClick(event) {
   score++;
   document.querySelector("#score").innerHTML = `Score: ${score}`;
 
-  card.style.backgroundColor = card.classList[0];
+  card.style.backgroundColor = `#${card.classList[0]}`;
+  card.innerHTML = `#${card.classList[0]}`;
 
   // !false || !false
   // if less than two cards are flipped
@@ -103,6 +118,8 @@ function handleCardClick(event) {
       setTimeout(function() {
         card1.style.backgroundColor = "";
         card2.style.backgroundColor = "";
+        card1.innerHTML = "";
+        card2.innerHTML = "";
         card1.classList.remove("flipped");
         card2.classList.remove("flipped");
         card1 = null;
@@ -113,7 +130,7 @@ function handleCardClick(event) {
     }
   }
 
-  if(flipped === COLORS.length) {
+  if(flipped === deck.length) {
     let bestScore = localStorage.getItem("bestScore");
     if(bestScore === null) {
       bestScore = score;
@@ -124,20 +141,5 @@ function handleCardClick(event) {
     localStorage.setItem("bestScore", bestScore);
 
     alert(`WINNER! Score: ${score}. Best Score: ${bestScore}`);
-
-    const div = document.querySelector("#button");
-    const restart = document.createElement("button");
-    restart.innerHTML = "Restart";
-    restart.addEventListener("click", function() {
-      location.reload();
-    });
-
-    div.appendChild(restart);
   }
 }
-
-const button = document.querySelector("#start");
-button.addEventListener("click", function() {
-  createDivsForColors(shuffledColors);
-  button.remove();
-});

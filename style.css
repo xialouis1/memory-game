@@ -1,7 +1,16 @@
+html, body {
+  height: 100%;
+}
+
+#game {
+  display: flex;
+  flex-wrap: wrap;
+  height: 100%;
+}
+
 #game div {
   border: 1px solid black;
   width: 15%;
-  height: 200px;
-  margin: 10px;
+  height: 15%;
   display: inline-block;
 }
